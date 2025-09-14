@@ -1,83 +1,48 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import * as XLSX from "xlsx";
 
-interface Sale {
-  "Order ID": string;
-  Sales: number;
-  Profit: number;
-  Cost: number;
-  Quantity: number;
-  "Order Date": string;
-  City: string;
-  Country: string;
-  Region: string;
-  "Ship Mode": string;
-  "Ship Date": string;
-  State: string;
-  lon: number;
-  lat: number;
-  "Customer ID": number;
-  "Product ID": number;
+interface RowData {
+  [key: string]: string | number;
 }
 
 export default function SalesTable() {
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [columns, setColumns] = useState<string[]>([]);
+  const [rows, setRows] = useState<RowData[]>([]);
 
   useEffect(() => {
-    async function loadData() {
-      // Fetch the Excel file from the public folder
-      const response = await fetch("/db_excel/SalesData1.xlsx");
-      const arrayBuffer = await response.arrayBuffer();
-
-      // Read workbook from ArrayBuffer
-      const workbook = XLSX.read(arrayBuffer, { type: "array" });
-
-      // Get the first sheet dynamically
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-
-      const firstSheet: Sale[] = XLSX.utils.sheet_to_json<Sale>(worksheet);
-
-      if (firstSheet.length > 0) {
-        setColumns(Object.keys(firstSheet[0]));
-      }
-
-      setSales(firstSheet);
-    }
-
-    loadData();
+    fetch("/api/sales")
+      .then((res) => res.json())
+      .then((data) => setRows(data.rows || []));
   }, []);
 
+  if (rows.length === 0) {
+    return <p>No data found.</p>;
+  }
+
+  const headers = Object.keys(rows[0]);
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Sales Data</h2>
-      <div className="overflow-x-auto">
-        <table className="table-auto w-full border">
-          <thead>
-            <tr>
-              {columns.map((col) => (
-                <th key={col} className="border px-2 py-1">
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sales.map((row, idx) => (
-              <tr key={idx}>
-                {columns.map((col) => (
-                  <td key={col} className="border px-2 py-1">
-                    {row[col as keyof Sale]}
-                  </td>
-                ))}
-              </tr>
+    <table className="table-auto border-collapse border border-gray-400 w-full">
+      <thead>
+        <tr>
+          {headers.map((header) => (
+            <th key={header} className="border border-gray-400 px-2 py-1">
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, idx) => (
+          <tr key={idx}>
+            {headers.map((header) => (
+              <td key={header} className="border border-gray-400 px-2 py-1">
+                {row[header]}
+              </td>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 }

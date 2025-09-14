@@ -1,14 +1,10 @@
-// src/app/page.tsx
-"use client";
+import SalesTable from "@/components/ui/SalesTable";
 
-import React from "react";
-import SalesDashboard from "./salesDashboard";
-
-export default function HomePage() {
+export default function Home() {
   return (
     <main className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Welcome to My Dashboard</h1>
-      <SalesDashboard />
+      <h1 className="text-2xl font-bold mb-4">📊 Sales Data</h1>
+      <SalesTable />
     </main>
   );
 }
