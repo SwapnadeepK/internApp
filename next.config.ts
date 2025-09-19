@@ -8,9 +8,7 @@ const nextConfig: NextConfig = {
   env: {
     CUSTOM_API_URL: process.env.CUSTOM_API_URL, // Expose custom env variables
   },
-  experimental: {
-    appDir: true,                  // Enable the new App Router
-  },
+  
 };
 
 export default nextConfig;
